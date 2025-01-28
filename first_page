@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unine Payment Options</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .container > section:not(:last-child) {
+      border-bottom: 1px solid #2d2d2d;
+    }
+  </style>
+</head>
+<body class="bg-black text-white">
+  <div class="container mx-auto px-6 py-10">
+    <!-- Header -->
+    <header class="flex items-center justify-between mb-10">
+      <h1 class="text-2xl font-bold">Unine</h1>
+      <nav class="space-x-6">
+        <a href="#" class="hover:text-green-400">Learn</a>
+        <a href="#" class="hover:text-green-400">App</a>
+        <a href="#" class="hover:text-green-400">Community</a>
+        <a href="#" class="hover:text-green-400">Unine at Work</a>
+      </nav>
+      <div class="space-x-4">
+        <button class="text-green-400 hover:text-white">Sign Up</button>
+        <button class="bg-green-500 text-black px-4 py-2 rounded-lg hover:bg-green-400">Get a Demo</button>
+      </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="lg:flex lg:items-center py-10">
+      <!-- Text Section -->
+      <div class="lg:w-1/2 text-center lg:text-left">
+        <h2 class="text-4xl font-bold mb-6 leading-tight">More Payment Options<br>Better than Cash</h2>
+        <p class="text-gray-400 mb-6">
+          With Unine, you can access more than 240 million customers, as well as management tools, options, and payment methods.
+        </p>
+        <div class="flex justify-center lg:justify-start space-x-4">
+          <button class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+            <img src="https://img.icons8.com/color/48/apple-app-store--v1.png" alt="App Store" class="inline w-5 h-5"> App Store
+          </button>
+          <button class="bg-gray-700 text-white px-4 py-2 rounded-lg hover:bg-gray-600">
+            <img src="https://img.icons8.com/fluency/48/google-play.png" alt="Google Play" class="inline w-5 h-5"> Google Play
+          </button>
+        </div>
+        <p class="text-green-400 mt-4">Excellent 4.9 out of 5 ★★★★★</p>
+      </div>
+
+      <!-- Phone Mockup -->
+      <div class="lg:w-1/2 mt-12 lg:mt-0 flex justify-center relative">
+        <div class="bg-white text-black rounded-2xl shadow-lg w-60 p-4">
+          <div class="flex items-center justify-between">
+            <p>Hi, Alexander 👋</p>
+            <p>Menu</p>
+          </div>
+          <div class="mt-4">
+            <h3 class="font-bold text-lg">$52,300.00</h3>
+            <p class="text-gray-500">My Balance</p>
+            <div class="mt-4">
+              <div class="bg-gray-200 h-24 rounded-lg"></div>
+            </div>
+          </div>
+          <ul class="mt-6">
+            <li class="flex justify-between items-center py-2">
+              <span>Amazon</span>
+              <span class="text-red-500">-$80</span>
+            </li>
+            <li class="flex justify-between items-center py-2">
+              <span>Grab</span>
+              <span class="text-green-500">+$10</span>
+            </li>
+            <li class="flex justify-between items-center py-2">
+              <span>McDonald</span>
+              <span class="text-red-500">-$46</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- Safe & Convenient Transaction Section -->
+    <section class="py-10">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold">Safe & Convenient Transaction</h2>
+        <p class="text-gray-500">
+          Want to pay anything so easy with the touch of a finger. Through UNINE, you can make practically any transaction.
+        </p>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-6 text-center">
+        <div class="bg-gray-800 text-white shadow-lg rounded-lg p-6">
+          <p class="font-bold">Always Protected</p>
+          <p class="text-gray-400 mt-2">
+            Shopping with UNINE is even more secure thanks to Buyer Protection.
+          </p>
+        </div>
+        <div class="bg-green-500 text-black shadow-lg rounded-lg p-6">
+          <p class="font-bold">Get Reward</p>
+          <p class="text-gray-800 mt-2">
+            You can keep using your favorite card and keep getting rewards.
+          </p>
+        </div>
+        <div class="bg-gray-800 text-white shadow-lg rounded-lg p-6">
+          <p class="font-bold">No Hidden Fees</p>
+          <p class="text-gray-400 mt-2">
+            You will only be charged when selling goods or requesting payment.
+          </p>
+        </div>
+        <div class="bg-gray-800 text-white shadow-lg rounded-lg p-6">
+          <p class="font-bold">Free Shipping</p>
+          <p class="text-gray-400 mt-2">
+            Changed your mind after buying? Send back the item you purchased.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bank Account Section -->
+    <section class="py-10">
+      <div class="flex flex-wrap items-center justify-between">
+        <div class="w-full md:w-1/2 mb-6 md:mb-0">
+          <h3 class="text-2xl font-bold">Bank Accounts</h3>
+          <p class="text-gray-500 mt-2">
+            High interest, FDIC insured checking for individuals and businesses.
+          </p>
+          <p class="text-green-500 font-bold text-lg mt-4">$3,150.00</p>
+          <button class="mt-4 bg-green-500 text-black px-4 py-2 rounded-lg hover:bg-green-400">
+            Learn More
+          </button>
+        </div>
+        <div class="w-full md:w-1/2 text-center">
+          <h3 class="text-2xl font-bold">Keep your cash flow clear 💸<br>and keep increasing 🚀</h3>
+          <p class="text-gray-500 mt-2">
+            See it all at a glance when you link your cash accounts, credit cards, investments, and bills.
+          </p>
+          <button class="mt-4 bg-green-500 text-black px-6 py-3 rounded-lg hover:bg-green-400">
+            Try for Now →
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Stock Basket Generation Section -->
+    <section class="py-10">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold">Generate Your Stock Basket</h2>
+        <p class="text-gray-500">
+          Customize your investment basket based on your preferences and needs.
+        </p>
+      </div>
+      <div class="bg-gray-800 text-white rounded-lg shadow-lg p-6">
+        <form class="space-y-6">
+          <div>
+            <label for="amount" class="block font-bold mb-2">Investment Amount</label>
+            <input type="number" id="amount" name="amount" placeholder="Enter amount" class="w-full bg-gray-900 text-white px-4 py-2 rounded-lg">
+          </div>
+          <div>
+            <label for="type" class="block font-bold mb-2">Type</label>
+            <select id="type" name="type" class="w-full bg-gray-900 text-white px-4 py-2 rounded-lg">
+              <option value="students">Students</option>
+              <option value="job">Job</option>
+              <option value="business">Business</option>
+            </select>
+          </div>
+          <div>
+            <label for="risk" class="block font-bold mb-2">Risk Capacity</label>
+            <select id="risk" name="risk" class="w-full bg-gray-900 text-white px-4 py-2 rounded-lg">
+              <option value="low">Low</option>
+              <option value="medium">Medium</option>
+              <option value="high">High</option>
+            </select>
+          </div>
+          <button type="submit" class="bg-green-500 text-black px-6 py-3 rounded-lg hover:bg-green-400 w-full">
+            Generate Basket
+          </button>
+        </form>
+      </div>
+    </section>
+
+  </div>
+</body>
+</html>
