@@ -1,8 +1,9 @@
 import pandas as pd
 import numpy as np
 
-# Scoring functions
+# Scoring functions (unchanged)
 def score_revenue_growth(value):
+    """Score revenue growth based on predefined thresholds."""
     if pd.isna(value) or value == '-':
         return 0
     elif value > 20:
@@ -17,6 +18,7 @@ def score_revenue_growth(value):
         return 2
 
 def score_eps_growth(value):
+    """Score EPS growth based on predefined thresholds."""
     if pd.isna(value) or value == '-':
         return 0
     elif value > 25:
@@ -31,6 +33,7 @@ def score_eps_growth(value):
         return 1
 
 def score_rsi(value):
+    """Score RSI based on predefined thresholds."""
     if pd.isna(value) or value == '-':
         return 0
     elif 30 <= value <= 50:
@@ -41,6 +44,7 @@ def score_rsi(value):
         return 4
 
 def score_analyst_target_price(current_price, analyst_target_price):
+    """Score analyst target price based on potential upside."""
     if pd.isna(current_price) or pd.isna(analyst_target_price) or current_price == '-' or analyst_target_price == '-':
         return 0
     potential_upside = (analyst_target_price - current_price) / current_price * 100
@@ -56,6 +60,7 @@ def score_analyst_target_price(current_price, analyst_target_price):
         return 2
 
 def score_beta(value):
+    """Score Beta based on predefined thresholds."""
     if pd.isna(value) or value == '-':
         return 0
     elif 0.8 <= value <= 1.2:
@@ -68,6 +73,7 @@ def score_beta(value):
         return 4
 
 def score_profit_margin(value):
+    """Score profit margin based on predefined thresholds."""
     if pd.isna(value) or value == '-':
         return 0
     elif value > 25:
@@ -82,6 +88,7 @@ def score_profit_margin(value):
         return 2
 
 def score_ebitda_margin(value):
+    """Score EBITDA margin based on predefined thresholds."""
     if pd.isna(value) or value == '-':
         return 0
     elif value > 25:
@@ -96,6 +103,7 @@ def score_ebitda_margin(value):
         return 2
 
 def score_roe(value):
+    """Score Return on Equity (ROE) based on predefined thresholds."""
     if pd.isna(value) or value == '-':
         return 0
     elif value > 25:
@@ -110,6 +118,7 @@ def score_roe(value):
         return 2
 
 def score_debt_equity(value):
+    """Score Debt/Equity ratio based on predefined thresholds."""
     if pd.isna(value) or value == '-':
         return 0
     elif value < 0.5:
@@ -124,6 +133,7 @@ def score_debt_equity(value):
         return 2
 
 def score_roa(value):
+    """Score Return on Assets (ROA) based on predefined thresholds."""
     if pd.isna(value) or value == '-':
         return 0
     elif value > 10:
@@ -137,26 +147,23 @@ def score_roa(value):
     else:
         return 2
 
-# Function to preprocess percentage values
+# Function to preprocess percentage values (unchanged)
 def preprocess_percentage_columns(data, columns):
+    """Preprocess percentage columns by removing '%' and converting to float."""
     for col in columns:
         if col in data.columns:
-            # Replace '-' with NaN to safely convert to float
             data[col] = data[col].replace('-', np.nan, regex=True)
-            # Remove '%' and convert to float
             data[col] = data[col].replace('%', '', regex=True).astype(float)
     return data
 
-# Main function
+# Main function to process stock data
 def process_stock_data_csv(input_file, output_file):
+    """Process stock data, calculate scores, and save the results."""
     try:
         data = pd.read_csv(input_file)
     except Exception as e:
         print(f"Error reading the input file: {e}")
         return
-
-    # Preserve non-numeric columns
-    original_data = data.copy()
 
     # Preprocess percentage columns
     percentage_columns = [
@@ -165,12 +172,10 @@ def process_stock_data_csv(input_file, output_file):
     ]
     data = preprocess_percentage_columns(data, percentage_columns)
 
+    # Convert numeric columns
     for col in data.columns:
         if col not in ['Stock Symbol', 'Theme']:
             data[col] = pd.to_numeric(data[col], errors='coerce')
-
-    data['Stock Symbol'] = original_data['Stock Symbol']
-    data['Theme'] = original_data['Theme']
 
     # Apply scoring logic
     data['Revenue Growth (YoY) Score'] = data['Revenue Growth (YoY)'].apply(score_revenue_growth)
@@ -186,7 +191,7 @@ def process_stock_data_csv(input_file, output_file):
     data['Debt/Equity Ratio Score'] = data['Debt / Equity'].apply(score_debt_equity)
     data['Return on Assets (ROA) Score'] = data['Return on Assets (ROA)'].apply(score_roa)
 
-    # Define weights
+    # Define weights for scoring
     weights = {
         'Revenue Growth (YoY) Score': 0.15,
         'EPS Growth Score': 0.15,
@@ -203,25 +208,23 @@ def process_stock_data_csv(input_file, output_file):
     # Calculate total score
     data['Total Score'] = sum([data[col] * weight for col, weight in weights.items()])
 
-    # Rank the stocks
+    # Rank the stocks with unique ranks
     data['Rank'] = data['Total Score'].rank(ascending=False, method='min')
 
-    # Reorder columns
-    updated_columns = list(original_data.columns) + [
-        'Revenue Growth (YoY) Score', 'EPS Growth Score', 'RSI Score',
-        'Analyst Target Price Score', 'Beta Score', 'Profit Margin Score',
-        'EBITDA Margin Score', 'Return on Equity (ROE) Score',
-        'Debt/Equity Ratio Score', 'Return on Assets (ROA) Score',
-        'Total Score', 'Rank'
-    ]
-    updated_data = data[updated_columns]
+    # Adjust ranks to ensure uniqueness
+    data['Rank'] = data['Rank'] + data.groupby('Rank').cumcount()
 
-    # Save to a new CSV file
+    # Save to the same CSV file (overwrite)
     try:
-        updated_data.to_csv(output_file, index=False)
+        data.to_csv(output_file, index=False)
         print(f"Processed data saved to {output_file}")
     except Exception as e:
         print(f"Error writing to output file: {e}")
 
+    # Display ranked stock symbols
+    ranked_stocks = data[['Stock Symbol', 'Rank']].sort_values(by='Rank')
+    print("\nRanked Stock Symbols:")
+    print(ranked_stocks.to_string(index=False))
+
 # Example usage
-process_stock_data_csv("filtered_cleaned_stock_data.csv", "filtered_cleaned_stock_data.csv")
+process_stock_data_csv("Midcap.csv", "Midcap.csv")
