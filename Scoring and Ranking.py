@@ -174,7 +174,7 @@ def process_stock_data_csv(input_file, output_file):
 
     # Convert numeric columns
     for col in data.columns:
-        if col not in ['Stock Symbol', 'Theme']:
+        if col not in ['Stock Symbol', 'Theme','Full Name','Expert Recommendation','News Sentiment']:
             data[col] = pd.to_numeric(data[col], errors='coerce')
 
     # Apply scoring logic
@@ -227,4 +227,4 @@ def process_stock_data_csv(input_file, output_file):
     print(ranked_stocks.to_string(index=False))
 
 # Example usage
-process_stock_data_csv("Midcap.csv", "Midcap.csv")
+process_stock_data_csv("test1.csv", "test1.csv")

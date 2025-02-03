@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 
 # Load the original CSV file
-file_path = 'company.csv'  # Replace with your original file path
+file_path = 'hello.csv'  # Replace with your original file path
 df = pd.read_csv(file_path)
 
 # Define the theme to filter
@@ -21,7 +21,7 @@ filtered_df = filtered_df.apply(lambda x: x.str.replace(',', '', regex=True) if 
 filtered_df = filtered_df.apply(lambda x: x.str.replace('%', '', regex=True) if x.dtype == 'object' else x)
 
 # Columns to exclude from conversion
-exclude_columns = ['Stock Symbol', 'Theme']  # 'Expert Recommendation' removed as per your decision
+exclude_columns = ['Stock Symbol', 'Theme','Full Name','Expert Recommendation','News Sentiment']  # 'Expert Recommendation' removed as per your decision
 
 # Convert all other columns to float and round to 2 decimal places
 for column in filtered_df.columns:
@@ -29,7 +29,7 @@ for column in filtered_df.columns:
         filtered_df[column] = pd.to_numeric(filtered_df[column], errors='coerce').round(2)
 
 # Save the cleaned and filtered data to a new CSV file
-filtered_file_path = 'Midcap.csv'
+filtered_file_path = 'test1.csv'
 filtered_df.to_csv(filtered_file_path, index=False)
 
 print(f"Filtered and cleaned data for theme '{selected_theme}' has been saved to '{filtered_file_path}'")

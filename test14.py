@@ -2,14 +2,7 @@ import requests
 from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
 from textblob import TextBlob
 
-# Stock symbols to full stock names
-# stock_symbol_to_name = {
-#     "AAPL": "Apple Inc.",
-#     "LMT": "Lockheed Martin",
-#     "GOOG": "Alphabet Inc. (Google)",
-#     "MSFT": "Microsoft Corporation",
-#     # Add more stock symbols and names as needed
-# }
+
 
 stock_symbol_to_name = {
     
