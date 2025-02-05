@@ -1,189 +1,248 @@
-import requests
-from bs4 import BeautifulSoup
-import yfinance as yf
-import warnings
 import pandas as pd
+import numpy as np
 
-warnings.simplefilter(action='ignore', category=FutureWarning)
+# Scoring functions (unchanged)
+def score_revenue_growth(value):
+    """Score revenue growth based on predefined thresholds."""
+    if pd.isna(value) or value == '-':
+        return 0
+    elif value > 20:
+        return 10
+    elif value > 10:
+        return 8
+    elif value > 5:
+        return 6
+    elif value > 1:
+        return 4
+    else:
+        return 2
 
-# Function to fetch stock price and key metrics
-def fetch_stock_data(stock_symbol):
-    url = f"https://stockanalysis.com/quote/nse/{stock_symbol}/"
-    response = requests.get(url)
+def score_eps_growth(value):
+    """Score EPS growth based on predefined thresholds."""
+    if pd.isna(value) or value == '-':
+        return 0
+    elif value > 25:
+        return 10
+    elif value > 15:
+        return 8
+    elif value > 5:
+        return 6
+    elif value > 0:
+        return 4
+    else:
+        return 1
+
+def score_rsi(value):
+    """Score RSI based on predefined thresholds."""
+    if pd.isna(value) or value == '-':
+        return 0
+    elif 30 <= value <= 50:
+        return 10
+    elif 50 < value <= 70:
+        return 8
+    else:
+        return 4
+
+def score_analyst_target_price(current_price, analyst_target_price):
+    """Score analyst target price based on potential upside."""
+    if pd.isna(current_price) or pd.isna(analyst_target_price) or current_price == '-' or analyst_target_price == '-':
+        return 0
+    potential_upside = (analyst_target_price - current_price) / current_price * 100
+    if potential_upside > 30:
+        return 10
+    elif potential_upside > 20:
+        return 8
+    elif potential_upside > 10:
+        return 6
+    elif potential_upside > 0:
+        return 4
+    else:
+        return 2
+
+def score_beta(value):
+    """Score Beta based on predefined thresholds."""
+    if pd.isna(value) or value == '-':
+        return 0
+    elif 0.8 <= value <= 1.2:
+        return 10
+    elif 0.5 <= value < 0.8:
+        return 8
+    elif 1.2 < value <= 1.5:
+        return 6
+    else:
+        return 4
+
+def score_profit_margin(value):
+    """Score profit margin based on predefined thresholds."""
+    if pd.isna(value) or value == '-':
+        return 0
+    elif value > 25:
+        return 10
+    elif value > 18:
+        return 8
+    elif value > 12:
+        return 6
+    elif value > 5:
+        return 4
+    else:
+        return 2
+
+def score_ebitda_margin(value):
+    """Score EBITDA margin based on predefined thresholds."""
+    if pd.isna(value) or value == '-':
+        return 0
+    elif value > 25:
+        return 10
+    elif value > 18:
+        return 8
+    elif value > 12:
+        return 6
+    elif value > 5:
+        return 4
+    else:
+        return 2
+
+def score_roe(value):
+    """Score Return on Equity (ROE) based on predefined thresholds."""
+    if pd.isna(value) or value == '-':
+        return 0
+    elif value > 25:
+        return 10
+    elif value > 15:
+        return 8
+    elif value > 10:
+        return 6
+    elif value > 5:
+        return 4
+    else:
+        return 2
+
+def score_debt_equity(value):
+    """Score Debt/Equity ratio based on predefined thresholds."""
+    if pd.isna(value) or value == '-':
+        return 0
+    elif value < 0.5:
+        return 10
+    elif value <= 1:
+        return 8
+    elif value <= 1.5:
+        return 6
+    elif value <= 2:
+        return 4
+    else:
+        return 2
+
+def score_roa(value):
+    """Score Return on Assets (ROA) based on predefined thresholds."""
+    if pd.isna(value) or value == '-':
+        return 0
+    elif value > 10:
+        return 10
+    elif value > 7:
+        return 8
+    elif value > 4:
+        return 6
+    elif value > 1:
+        return 4
+    else:
+        return 2
     
-    if response.status_code != 200:
-        print(f"Failed to fetch data for {stock_symbol}")
-        return None
-    
-    soup = BeautifulSoup(response.text, 'html.parser')
-    metrics = { 'Current Price': 'N/A', 'P/E Ratio': 'N/A', 'Beta': 'N/A', 
-                'RSI': 'N/A', 'EPS (ttm)': 'N/A', '52-Week Low': 'N/A', '52-Week High': 'N/A' }
+def score_expert_recommendation(value):
+    """Score Expert Recommendation based on predefined categories."""
+    if pd.isna(value):
+        return 0
+    scores = {'strong buy': 10, 'buy': 8, 'hold': 6, 'underperform': 4, 'sell': 2}
+    return scores.get(value, 0)
 
-    price = soup.find('div', class_='text-4xl font-bold inline-block')
-    if price:
-        metrics['Current Price'] = price.text.strip()
+def score_news_sentiment(value):
+    """Score News Sentiment based on predefined categories."""
+    if pd.isna(value):
+        return 0
+    scores = {'Positive': 10, 'Neutral': 6, 'Negative': 2}
+    return scores.get(value, 0)    
 
-    rows = soup.find_all('tr', class_='flex flex-col border-b border-default py-1 sm:table-row sm:py-0')
-    for row in rows:
-        cols = row.find_all('td')
-        if len(cols) > 1:
-            key, value = cols[0].text.strip(), cols[1].text.strip()
-            if 'PE Ratio' in key: metrics['P/E Ratio'] = value
-            elif 'Beta' in key: metrics['Beta'] = value
-            elif 'RSI' in key: metrics['RSI'] = value
-            elif 'EPS (ttm)' in key: metrics['EPS (ttm)'] = value
-            elif '52-Week Range' in key:
-                try:
-                    low, high = value.split('-')
-                    metrics['52-Week Low'] = low.strip()
-                    metrics['52-Week High'] = high.strip()
-                except ValueError:
-                    metrics['52-Week Low'] = metrics['52-Week High'] = 'N/A'
+# Function to preprocess percentage values (unchanged)
+def preprocess_percentage_columns(data, columns):
+    """Preprocess percentage columns by removing '%' and converting to float."""
+    for col in columns:
+        if col in data.columns:
+            data[col] = data[col].replace('-', np.nan, regex=True)
+            data[col] = data[col].replace('%', '', regex=True).astype(float)
+    return data
 
-    return metrics
-
-
-# Function to fetch financial data (Revenue Growth, EPS Growth, Profit Margin, EBITDA Margin)
-def fetch_financial_data(stock_symbol):
-    url = f'https://stockanalysis.com/quote/nse/{stock_symbol}/financials/'
-    response = requests.get(url)
-    
-    if response.status_code != 200:
-        print(f"Failed to fetch data for {stock_symbol}. HTTP Status Code: {response.status_code}")
-        return None
-    
-    soup = BeautifulSoup(response.text, 'html.parser')
-
-    def fetch_growth_value(label):
-        growth_section = soup.find(string=label)
-        if growth_section:
-            value_cell = growth_section.find_parent('tr').find_all('td')[1]
-            return value_cell.text.strip()
-        return "Data not found"
-
-    metrics = {
-        "Revenue Growth (YoY)": fetch_growth_value("Revenue Growth (YoY)"),
-        "EPS Growth": fetch_growth_value("EPS Growth"),
-        "Profit Margin": fetch_growth_value("Profit Margin"),
-        "EBITDA Margin": fetch_growth_value("EBITDA Margin")
-    }
-
-    return metrics
-
-
-# Function to fetch stock ratios (Quick Ratio, Current Ratio, ROE, ROA, Market Cap Growth)
-def fetch_stock_ratios(stock_symbol):
-    url = f'https://stockanalysis.com/quote/nse/{stock_symbol}/financials/ratios/'
-    response = requests.get(url)
-    ratios = {
-        "Quick Ratio": None,
-        "Current Ratio": None,
-        "Return on Equity (ROE)": None,
-        "Return on Assets (ROA)": None,
-        "Market Cap Growth": None
-    }
-    
-    if response.status_code != 200:
-        print(f"Failed to fetch ratios for {stock_symbol}")
-        return ratios
-    
-    soup = BeautifulSoup(response.text, 'html.parser')
-
-    def fetch_ratio(ratio_name):
-        row = soup.find(string=ratio_name)
-        if row:
-            columns = row.find_parent('tr').find_all('td')
-            if len(columns) > 1:
-                return columns[2].text.strip() if columns[1].text.strip() == '-' and len(columns) > 2 else columns[1].text.strip()
-        return None
-
-    for ratio in ratios.keys():
-        ratios[ratio] = fetch_ratio(ratio) or "Data not found"
-    
-    return ratios
-
-
-# Function to fetch PB Ratio and Debt/Equity
-def fetch_stock_statistics(stock_symbol):
-    url = f'https://stockanalysis.com/quote/nse/{stock_symbol}/statistics/'
-    response = requests.get(url)
-    if response.status_code != 200:
-        print(f"Failed to retrieve data for {stock_symbol}. HTTP Status Code: {response.status_code}")
-        return None
-
-    soup = BeautifulSoup(response.text, 'html.parser')
-
-    def fetch_stat_value(label):
-        rows = soup.find_all('tr')
-        for row in rows:
-            cols = row.find_all('td')
-            if len(cols) > 1 and label in row.get_text():
-                return cols[1].text.strip()
-        return None
-
-    pb_ratio = fetch_stat_value('PB Ratio')
-    debt_equity = fetch_stat_value('Debt / Equity')
-
-    return {
-        "PB Ratio": pb_ratio if pb_ratio else "N/A",
-        "Debt / Equity": debt_equity if debt_equity else "N/A"
-    }
-
-
-# Function to fetch analyst data (Recommendation, Target Price)
-def fetch_analyst_data(stock_symbol):
-    ticker = stock_symbol + '.NS'
+# Main function to process stock data
+def process_stock_data_csv(input_file, output_file):
+    """Process stock data, calculate scores, and save the results."""
     try:
-        stock = yf.Ticker(ticker)
-        expert_recommendation = stock.info.get('recommendationKey', 'N/A')
-        target_price = stock.info.get('targetMeanPrice', 'N/A')
-        return {
-            "Expert Recommendation": expert_recommendation,
-            "Analyst Target Price": target_price
-        }
+        data = pd.read_csv(input_file)
     except Exception as e:
-        print(f"An error occurred for {stock_symbol}: {e}")
-        return {
-            "Expert Recommendation": "N/A",
-            "Analyst Target Price": "N/A"
-        }
+        print(f"Error reading the input file: {e}")
+        return
 
+    # Preprocess percentage columns
+    percentage_columns = [
+        'Profit Margin', 'EBITDA Margin', 'Return on Equity (ROE)',
+        'Return on Assets (ROA)', 'Revenue Growth (YoY)', 'EPS Growth'
+    ]
+    data = preprocess_percentage_columns(data, percentage_columns)
 
-# Master function to fetch all data for a stock
-def fetch_all_stock_data(stock_symbol):
-    stock_data = {}
-    stock_data['Price and Metrics'] = fetch_stock_data(stock_symbol)
-    stock_data['Financial Data'] = fetch_financial_data(stock_symbol)
-    stock_data['Stock Ratios'] = fetch_stock_ratios(stock_symbol)
-    stock_data['Stock Statistics'] = fetch_stock_statistics(stock_symbol)
-    stock_data['Analyst Data'] = fetch_analyst_data(stock_symbol)
-    return stock_data
+    # Convert numeric columns
+    for col in data.columns:
+        if col not in ['Stock Symbol', 'Theme','Full Name','Expert Recommendation','News Sentiment']:
+            data[col] = pd.to_numeric(data[col], errors='coerce')
 
+    # Apply scoring logic
+    data['Revenue Growth (YoY) Score'] = data['Revenue Growth (YoY)'].apply(score_revenue_growth)
+    data['EPS Growth Score'] = data['EPS Growth'].apply(score_eps_growth)
+    data['RSI Score'] = data['RSI'].apply(score_rsi)
+    data['Analyst Target Price Score'] = data.apply(
+        lambda row: score_analyst_target_price(row['Current Price'], row['Analyst Target Price']), axis=1
+    )
+    data['Beta Score'] = data['Beta'].apply(score_beta)
+    data['Profit Margin Score'] = data['Profit Margin'].apply(score_profit_margin)
+    data['EBITDA Margin Score'] = data['EBITDA Margin'].apply(score_ebitda_margin)
+    data['Return on Equity (ROE) Score'] = data['Return on Equity (ROE)'].apply(score_roe)
+    data['Debt/Equity Ratio Score'] = data['Debt / Equity'].apply(score_debt_equity)
+    data['Return on Assets (ROA) Score'] = data['Return on Assets (ROA)'].apply(score_roa)
+    data['Expert Recommendation Score'] = data['Expert Recommendation'].apply(score_expert_recommendation)
+    data['News Sentiment Score'] = data['News Sentiment'].apply(score_news_sentiment)
 
-# Function to update the existing CSV file with fetched data
-def update_csv_with_stock_data(company_csv):
-    df = pd.read_csv(company_csv)
+    # Define weights for scoring
+    weights = {
+        'Revenue Growth (YoY) Score': 0.15,
+        'EPS Growth Score': 0.15,
+        'RSI Score': 0.1,
+        'Analyst Target Price Score': 0.1,
+        'Beta Score': 0.05,
+        'Profit Margin Score': 0.1,
+        'EBITDA Margin Score': 0.1,
+        'Return on Equity (ROE) Score': 0.1,
+        'Debt/Equity Ratio Score': 0.05,
+        'Return on Assets (ROA) Score': 0.1,
+        'Expert Recommendation Score': 0.03,
+        'News Sentiment Score': 0.03
+    }
 
-    # Loop through rows and fetch data for each stock symbol
-    for index, row in df.iterrows():
-        stock_symbol = row['Stock Symbol']
-        stock_data = fetch_all_stock_data(stock_symbol)
+    # Calculate total score
+    data['Total Score'] = sum([data[col] * weight for col, weight in weights.items()])
 
-        # Update the corresponding columns with fetched data
-        for category, data in stock_data.items():
-            if isinstance(data, dict):
-                for key, value in data.items():
-                    if key not in df.columns:
-                        df[key] = 'N/A'  # Add missing columns dynamically
-                    df.at[index, key] = value
-            else:
-                if category not in df.columns:
-                    df[category] = 'N/A'
-                df.at[index, category] = data
+    # Rank the stocks with unique ranks
+    data['Rank'] = data['Total Score'].rank(ascending=False, method='min')
 
-    # Write back to the same CSV file
-    df.to_csv(company_csv, index=False)
+    # Adjust ranks to ensure uniqueness
+    data['Rank'] = data['Rank'] + data.groupby('Rank').cumcount()
 
+    # Save to the same CSV file (overwrite)
+    try:
+        data.to_csv(output_file, index=False)
+        print(f"Processed data saved to {output_file}")
+    except Exception as e:
+        print(f"Error writing to output file: {e}")
+
+    
+    ranked_stocks = data[['Stock Symbol', 'Rank']].sort_values(by='Rank')
+    print("\nRanked Stock Symbols:")
+    print(ranked_stocks.to_string(index=False))
 
 # Example usage
-update_csv_with_stock_data('hello.csv')
+process_stock_data_csv("test1.csv", "test1.csv")
