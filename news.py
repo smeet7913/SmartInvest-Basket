@@ -3,7 +3,7 @@ import requests
 from transformers import pipeline, AutoModelForSequenceClassification, AutoTokenizer
 
 # Load the CSV file
-csv_file = "hello.csv"  # Update with the correct path
+csv_file = "Company1.csv"  # Update with the correct path
 stocks_df = pd.read_csv(csv_file)
 
 # Initialize sentiment analysis model
@@ -57,5 +57,5 @@ for index, row in stocks_df.iterrows():
     stocks_df.at[index, 'News Sentiment'] = sentiment
 
 # Save the updated CSV
-stocks_df.to_csv("hello.csv", index=False)
+stocks_df.to_csv("Company1.csv", index=False)
 print("Updated CSV with News Sentiment saved as 'updated_stocks.csv'")

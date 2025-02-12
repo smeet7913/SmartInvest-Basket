@@ -3,7 +3,7 @@ import os
 import yfinance as yf  # Ensure you have installed yfinance using `pip install yfinance`
 
 # Define the file name
-csv_file = "hello.csv"
+csv_file = "Company1.csv"
 
 # Function to initialize the CSV file with headers if it doesn't exist
 def initialize_csv(file_name):

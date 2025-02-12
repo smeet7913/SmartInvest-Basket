@@ -239,10 +239,10 @@ def process_stock_data_csv(input_file, output_file):
     except Exception as e:
         print(f"Error writing to output file: {e}")
 
-    
+    # Display ranked stock symbols
     ranked_stocks = data[['Stock Symbol', 'Rank']].sort_values(by='Rank')
     print("\nRanked Stock Symbols:")
     print(ranked_stocks.to_string(index=False))
 
 # Example usage
-process_stock_data_csv("test1.csv", "test1.csv")
+process_stock_data_csv("Midcap.csv", "Midcap.csv")
